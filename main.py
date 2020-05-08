@@ -3,11 +3,13 @@ import logging
 import json
 import random
 import os
+import requests
 
 app = Flask(__name__)
 
 logging.basicConfig(level=logging.INFO)
-
+search_api_server = "https://search-maps.yandex.ru/v1/"
+api_key = "dda3ddba-c9ea-4ead-9010-f43fbc15c6e3"
 sessionStorage = {}
 
 
@@ -51,7 +53,27 @@ def handle_dialog(res, req):
         if city is None:
             res['response']['text'] = 'Не расслышала город. Повтори, пожалуйста!'
         else:
-            res['response']['text'] = 'Понятно.'
+            x_cord = get_coordinates(city[0])
+            y_cord = get_coordinates(city[1])
+            address_ll = '{},{}'.format(x_cord, y_cord)
+            res['response']['text'] = 'Вы можете найти любой ближайший объекта в вашем городе (аптека, больница, автосалон). ' \
+                                      'Для этого введите: найти объект <сам объект>'
+            tokens = req['request']['nlu']['tokens']
+            if tokens[0] == 'найти' and tokens[1] == 'объект':
+                search_params = {
+                    "apikey": api_key,
+                    "text": tokens[2:],
+                    "lang": "ru_RU",
+                    "ll": address_ll,
+                    "type": "biz"
+                }
+                response = requests.get(search_api_server, params=search_params)
+                json_response = response.json()
+                organization = json_response["features"][0]
+                org_name = organization["properties"]["CompanyMetaData"]["name"]
+                org_address = organization["properties"]["CompanyMetaData"]["address"]
+                res['response']['text'] = 'Адресс: {}. ' \
+                                          'Название: {}'.format(org_address, org_name)
 
 
 def get_city(req):
@@ -73,6 +95,20 @@ def get_first_name(req):
             # то возвращаем ее значение.
             # Во всех остальных случаях возвращаем None.
             return entity['value'].get('first_name', None)
+
+
+def get_coordinates(city_name):
+    url = "https://geocode-maps.yandex.ru/1.x/"
+    params = {
+        "apikey": "40d1649f-0493-4b70-98ba-98533de7710b",
+        'geocode': city_name,
+        'format': 'json'
+    }
+    response = requests.get(url, params)
+    json = response.json()
+    coordinates_str = json['response']['GeoObjectCollection'][
+        'featureMember'][0]['GeoObject']['Point']['pos']
+    return list(map(float, coordinates_str.split()))
 
 
 if __name__ == '__main__':
