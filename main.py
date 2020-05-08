@@ -2,7 +2,6 @@ from flask import Flask, request
 from math import sin, cos, sqrt, atan2, radians
 import logging
 import json
-import random
 import os
 import requests
 
@@ -60,10 +59,13 @@ def handle_dialog(res, req):
             else:
                 sessionStorage[user_id]['is_city'] = True
                 sessionStorage[user_id]['city'] = city
-                res['response']['text'] = '''1) Вы можете найти любой ближайший объект в вашем городе (аптека, больница, автосалон).
+                res['response']['text'] = '''Вы можете: 
+                                          1) Найти любой ближайший объект в вашем городе (аптека, больница, автосалон).
                                           Для этого введите: найти объект <сам объект>
-                                          2) Вы можете найти расстояние между двумя городами.
-                                          Для этого введите: найти расстояние <город1> <город2>'''
+                                          2) Найти расстояние между двумя городами.
+                                          Для этого введите: найти расстояние <город1> <город2>
+                                          3) Определить страну, в которой находится введенный город.
+                                          Для этого введите: в какой стране <город>'''
         else:
             x_cord = get_coordinates(sessionStorage[user_id]['city'])[0]
             y_cord = get_coordinates(sessionStorage[user_id]['city'])[1]
@@ -106,11 +108,18 @@ def handle_dialog(res, req):
                     res['response']['text'] = 'Не могу найти данный объект. Возможно он не обозначен или ' \
                                               'ввод не соответствует требованиям.'
             elif tokens[0] == 'найти' and tokens[1] == 'расстояние':
-                city1 = tokens[2]
-                city2 = tokens[3]
-                distance = get_distance(get_coordinates(city1), get_coordinates(city2))
-                res['response']['text'] = 'Расстояние между этими городами: ' + \
-                          str(round(distance)) + ' км.'
+                try:
+                    city1 = tokens[-2]
+                    city2 = tokens[-1]
+                    distance = get_distance(get_coordinates(city1), get_coordinates(city2))
+                    res['response']['text'] = 'Расстояние между этими городами: ' + \
+                              str(round(distance)) + ' км.'
+                except:
+                    res['response']['text'] = 'Не могу найти данные Города. Возможно ' \
+                          'ввод не соответствует требованиям.'
+            elif tokens[0] == 'в' and tokens[1] == 'какой' and tokens[2] == 'стране':
+                country = get_country(tokens[-1])
+                res['response']['text'] = 'Страна: {}'.format(country)
 
 
 def get_city(req):
@@ -166,6 +175,22 @@ def get_distance(p1, p2):
     distance = R * c
 
     return distance
+
+
+def get_country(city):
+
+    url = "https://geocode-maps.yandex.ru/1.x/"
+
+    params = {
+        'geocode': city,
+        'format': 'json',
+        'apikey': '40d1649f-0493-4b70-98ba-98533de7710b'
+    }
+
+    response = requests.get(url, params)
+    json = response.json()
+
+    return json['response']['GeoObjectCollection']['featureMember'][0]['GeoObject']['metaDataProperty']['GeocoderMetaData']['AddressDetails']['Country']['CountryName']
 
 
 if __name__ == '__main__':
