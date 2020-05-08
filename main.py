@@ -58,7 +58,7 @@ def handle_dialog(res, req):
             else:
                 sessionStorage[user_id]['is_city'] = True
                 sessionStorage[user_id]['city'] = city
-                res['response']['text'] = 'Вы можете найти любой ближайший объекта в вашем городе (аптека, больница, автосалон). ' \
+                res['response']['text'] = 'Вы можете найти любой ближайший объект в вашем городе (аптека, больница, автосалон). ' \
                     'Для этого введите: найти объект <сам объект>'
         else:
             x_cord = get_coordinates(sessionStorage[user_id]['city'])[0]
@@ -73,13 +73,16 @@ def handle_dialog(res, req):
                     "ll": address_ll,
                     "type": "biz"
                 }
-                response = requests.get(search_api_server, params=search_params)
-                json_response = response.json()
-                organization = json_response["features"][0]
-                org_name = organization["properties"]["CompanyMetaData"]["name"]
-                org_address = organization["properties"]["CompanyMetaData"]["address"]
-                res['response']['text'] = 'Адресс: {}. ' \
-                                          'Название: {}'.format(org_address, org_name)
+                try:
+                    response = requests.get(search_api_server, params=search_params)
+                    json_response = response.json()
+                    organization = json_response["features"][0]
+                    org_name = organization["properties"]["CompanyMetaData"]["name"]
+                    org_address = organization["properties"]["CompanyMetaData"]["address"]
+                    res['response']['text'] = 'Адресс: {}. ' \
+                                              'Название: {}'.format(org_address, org_name)
+                except:
+                    res['response']['text'] = 'Не могу найти данный объект. Возможно он не обозначен.'
 
 
 def get_city(req):
