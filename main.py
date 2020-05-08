@@ -49,15 +49,15 @@ def handle_dialog(res, req):
                           + first_name.title() \
                           + '. Я - Алиса. Введите название города, в котором вы сейчас находитесь'
     else:
-        if sessionStorage['city'] is None:
+        if sessionStorage[user_id]['city'] is None:
             city = get_city(req)
             if city is None:
                 res['response']['text'] = 'Не расслышала город. Повтори, пожалуйста!'
             else:
-                sessionStorage['city'] = city
+                sessionStorage[user_id]['city'] = city
         else:
-            x_cord = get_coordinates(sessionStorage['city'])[0]
-            y_cord = get_coordinates(sessionStorage['city'])[1]
+            x_cord = get_coordinates(sessionStorage[user_id]['city'])[0]
+            y_cord = get_coordinates(sessionStorage[user_id]['city'])[1]
             address_ll = '{},{}'.format(x_cord, y_cord)
             res['response']['text'] = 'Вы можете найти любой ближайший объекта в вашем городе (аптека, больница, автосалон). ' \
                                       'Для этого введите: найти объект <сам объект>'
