@@ -34,7 +34,8 @@ def handle_dialog(res, req):
     if req['session']['new']:
         res['response']['text'] = 'Привет! Назови свое имя!'
         sessionStorage[user_id] = {
-            'first_name': None
+            'first_name': None,
+            'city': None
         }
         return
     if sessionStorage[user_id]['first_name'] is None:
