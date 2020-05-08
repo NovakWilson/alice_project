@@ -56,6 +56,7 @@ def handle_dialog(res, req):
             if city is None:
                 res['response']['text'] = 'Не расслышала город. Повтори, пожалуйста!'
             else:
+                sessionStorage[user_id]['is_city'] = True
                 sessionStorage[user_id]['city'] = city
                 res['response']['text'] = 'Вы можете найти любой ближайший объекта в вашем городе (аптека, больница, автосалон). ' \
                     'Для этого введите: найти объект <сам объект>'
