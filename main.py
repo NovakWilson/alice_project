@@ -78,11 +78,17 @@ def handle_dialog(res, req):
                     json_response = response.json()
                     organization = json_response["features"][0]
                     org_name = organization["properties"]["CompanyMetaData"]["name"]
+                    try:
+                        org_time = organization["properties"]["CompanyMetaData"]['Hours']['text']
+                    except:
+                        org_time = 'Не указанно'
                     org_address = organization["properties"]["CompanyMetaData"]["address"]
                     res['response']['text'] = 'Адресс: {}. ' \
-                                              'Название: {}'.format(org_address, org_name)
+                                              'Название: {} ' \
+                                              'Время работы: {}'.format(org_address, org_name, org_time)
                 except:
-                    res['response']['text'] = 'Не могу найти данный объект. Возможно он не обозначен.'
+                    res['response']['text'] = 'Не могу найти данный объект. Возможно он не обозначен или ' \
+                                              'ввод не соответствует требованиям.'
 
 
 def get_city(req):
