@@ -83,9 +83,11 @@ def handle_dialog(res, req):
                     except:
                         org_time = 'Не указанно'
                     org_address = organization["properties"]["CompanyMetaData"]["address"]
-                    res['response']['text'] = 'Адресс: {}. ' \
-                                              'Название: {} ' \
-                                              'Время работы: {}'.format(org_address, org_name, org_time)
+                    res['response']['text'] = '''
+                                              Адресс: {}.
+                                              Название: {}
+                                              Время работы: {}
+                                              '''.format(org_address, org_name, org_time)
                 except:
                     res['response']['text'] = 'Не могу найти данный объект. Возможно он не обозначен или ' \
                                               'ввод не соответствует требованиям.'
