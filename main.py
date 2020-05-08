@@ -35,7 +35,8 @@ def handle_dialog(res, req):
         res['response']['text'] = 'Привет! Назови свое имя!'
         sessionStorage[user_id] = {
             'first_name': None,
-            'city': None
+            'is_city': False,
+            'city': ''
         }
         return
     if sessionStorage[user_id]['first_name'] is None:
@@ -50,7 +51,7 @@ def handle_dialog(res, req):
                           + first_name.title() \
                           + '. Я - Алиса. Введите название города, в котором вы сейчас находитесь'
     else:
-        if sessionStorage[user_id]['city'] is None:
+        if not sessionStorage[user_id]['is_city']:
             city = get_city(req)
             if city is None:
                 res['response']['text'] = 'Не расслышала город. Повтори, пожалуйста!'
