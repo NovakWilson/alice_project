@@ -73,24 +73,38 @@ def handle_dialog(res, req):
                     "ll": address_ll,
                     "type": "biz"
                 }
+                #try:
+                response = requests.get(search_api_server, params=search_params)
+                print(response.text)
+                json_response = response.json()
+                print(json_response)
+                organization = json_response["features"][0]
+                org_name = organization["properties"]["CompanyMetaData"]["name"]
                 try:
-                    response = requests.get(search_api_server, params=search_params)
-                    json_response = response.json()
-                    organization = json_response["features"][0]
-                    org_name = organization["properties"]["CompanyMetaData"]["name"]
-                    try:
-                        org_time = organization["properties"]["CompanyMetaData"]['Hours']['text']
-                    except:
-                        org_time = 'Не указанно'
-                    org_address = organization["properties"]["CompanyMetaData"]["address"]
-                    res['response']['text'] = '''
-                                              Адресс: {}.
-                                              Название: {}
-                                              Время работы: {}
-                                              '''.format(org_address, org_name, org_time)
+                    org_time = organization["properties"]["CompanyMetaData"]['Hours']['text']
+                except:
+                    org_time = 'Не указанно'
+                org_address = organization["properties"]["CompanyMetaData"]["address"]
+                res['response']['text'] = '''
+                                          Адресс: {}.
+                                          Название: {}
+                                          Время работы: {}
+                                          '''.format(org_address, org_name, org_time)
+                res['response']['buttons'] = [
+                    {
+                        'title': 'Да',
+                        'hide': True
+                    },
+                    {
+                        'title': 'Нет',
+                        'hide': True
+                    }
+                ]
+                '''
                 except:
                     res['response']['text'] = 'Не могу найти данный объект. Возможно он не обозначен или ' \
                                               'ввод не соответствует требованиям.'
+                '''
 
 
 def get_city(req):
