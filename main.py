@@ -57,12 +57,12 @@ def handle_dialog(res, req):
                 res['response']['text'] = 'Не расслышала город. Повтори, пожалуйста!'
             else:
                 sessionStorage[user_id]['city'] = city
+                res['response']['text'] = 'Вы можете найти любой ближайший объекта в вашем городе (аптека, больница, автосалон). ' \
+                    'Для этого введите: найти объект <сам объект>'
         else:
             x_cord = get_coordinates(sessionStorage[user_id]['city'])[0]
             y_cord = get_coordinates(sessionStorage[user_id]['city'])[1]
             address_ll = '{},{}'.format(x_cord, y_cord)
-            res['response']['text'] = 'Вы можете найти любой ближайший объекта в вашем городе (аптека, больница, автосалон). ' \
-                                      'Для этого введите: найти объект <сам объект>'
             tokens = req['request']['nlu']['tokens']
             if tokens[0] == 'найти' and tokens[1] == 'объект':
                 search_params = {
