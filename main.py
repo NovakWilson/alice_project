@@ -7,7 +7,7 @@ import requests
 
 app = Flask(__name__)
 
-logging.basicConfig(level=logging.INFO)
+#logging.basicConfig(level=logging.INFO)
 search_api_server = "https://search-maps.yandex.ru/v1/"
 api_key = "dda3ddba-c9ea-4ead-9010-f43fbc15c6e3"
 sessionStorage = {}
@@ -15,7 +15,7 @@ sessionStorage = {}
 
 @app.route('/post', methods=['POST'])
 def main():
-    logging.info(f'Request: {request.json!r}')
+    #logging.info(f'Request: {request.json!r}')
     response = {
         'session': request.json['session'],
         'version': request.json['version'],
@@ -24,7 +24,7 @@ def main():
         }
     }
     handle_dialog(response, request.json)
-    logging.info(f'Response: {response!r}')
+    #logging.info(f'Response: {response!r}')
     return json.dumps(response)
 
 
