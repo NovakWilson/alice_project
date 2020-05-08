@@ -10,7 +10,7 @@ app = Flask(__name__)
 
 logging.basicConfig(level=logging.INFO)
 search_api_server = "https://search-maps.yandex.ru/v1/"
-api_key = "531787e0-7e0b-410e-8bb8-280391f7e0cb"
+api_key = "85a99676-6991-4b77-a07c-fe0cb368f96f"
 OAuth = 'AgAAAAAqf_iLAAT7o_EKmn5n1kmmvwSwyWpHM_I'
 sessionStorage = {}
 
