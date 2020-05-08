@@ -1,4 +1,5 @@
 from flask import Flask, request
+from math import sin, cos, sqrt, atan2, radians
 import logging
 import json
 import random
@@ -59,8 +60,10 @@ def handle_dialog(res, req):
             else:
                 sessionStorage[user_id]['is_city'] = True
                 sessionStorage[user_id]['city'] = city
-                res['response']['text'] = 'Вы можете найти любой ближайший объект в вашем городе (аптека, больница, автосалон). ' \
-                    'Для этого введите: найти объект <сам объект>'
+                res['response']['text'] = '''1) Вы можете найти любой ближайший объект в вашем городе (аптека, больница, автосалон).
+                                          Для этого введите: найти объект <сам объект>
+                                          2) Вы можете найти расстояние между двумя городами.
+                                          Для этого введите: найти расстояние <город1> <город2>'''
         else:
             x_cord = get_coordinates(sessionStorage[user_id]['city'])[0]
             y_cord = get_coordinates(sessionStorage[user_id]['city'])[1]
@@ -99,19 +102,15 @@ def handle_dialog(res, req):
                                               Название: {}
                                               Время работы: {}
                                               '''.format(org_address, org_name, org_time)
-                    res['response']['buttons'] = [
-                        {
-                            'title': 'Да',
-                            'hide': True
-                        },
-                        {
-                            'title': 'Нет',
-                            'hide': True
-                        }
-                    ]
                 except:
                     res['response']['text'] = 'Не могу найти данный объект. Возможно он не обозначен или ' \
                                               'ввод не соответствует требованиям.'
+            elif tokens[0] == 'найти' and tokens[1] == 'расстояние':
+                city1 = tokens[2]
+                city2 = tokens[3]
+                distance = get_distance(get_coordinates(city1), get_coordinates(city2))
+                res['response']['text'] = 'Расстояние между этими городами: ' + \
+                          str(round(distance)) + ' км.'
 
 
 def get_city(req):
@@ -147,6 +146,26 @@ def get_coordinates(city_name):
     coordinates_str = json['response']['GeoObjectCollection'][
         'featureMember'][0]['GeoObject']['Point']['pos']
     return list(map(float, coordinates_str.split()))
+
+
+def get_distance(p1, p2):
+
+    R = 6373.0
+
+    lon1 = radians(p1[0])
+    lat1 = radians(p1[1])
+    lon2 = radians(p2[0])
+    lat2 = radians(p2[1])
+
+    dlon = lon2 - lon1
+    dlat = lat2 - lat1
+
+    a = sin(dlat / 2) ** 2 + cos(lat1) * cos(lat2) * sin(dlon / 2) ** 2
+    c = 2 * atan2(sqrt(a), sqrt(1 - a))
+
+    distance = R * c
+
+    return distance
 
 
 if __name__ == '__main__':

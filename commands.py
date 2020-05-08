@@ -1,33 +1,58 @@
-import os
 import sys
-import pygame
+from io import BytesIO
+from geopy.distance import great_circle
 import requests
+from PIL import Image
 
-response = None
-map_request = "http://static-maps.yandex.ru/1.x/?ll=141.378618,-26.316922&spn=34,34&l=sat"
-response = requests.get(map_request)
+search_api_server = "https://search-maps.yandex.ru/v1/"
+api_key = "85a99676-6991-4b77-a07c-fe0cb368f96f"
 
-if not response:
-    print("Ошибка выполнения запроса:")
-    print(map_request)
-    print("Http статус:", response.status_code, "(", response.reason, ")")
-    sys.exit(1)
+# address_ll = "37.588392,55.734036"
+address_ll = ','.join(sys.argv[1:])
 
-# Запишем полученное изображение в файл.
-map_file = "map.png"
-with open(map_file, "wb") as file:
-    file.write(response.content)
+search_params = {
+    "apikey": api_key,
+    "text": "аптека",
+    "lang": "ru_RU",
+    "ll": address_ll,
+    "type": "biz"
+}
 
-# Инициализируем pygame
-pygame.init()
-screen = pygame.display.set_mode((600, 450))
-# Рисуем картинку, загружаемую из только что созданного файла.
-screen.blit(pygame.image.load(map_file), (0, 0))
-# Переключаем экран и ждем закрытия окна.
-pygame.display.flip()
-while pygame.event.wait().type != pygame.QUIT:
-    pass
-pygame.quit()
+response = requests.get(search_api_server, params=search_params)
 
-# Удаляем за собой файл с изображением.
-os.remove(map_file)
+# Преобразуем ответ в json-объект
+json_response = response.json()
+
+# Получаем первую найденную организацию.
+organization = json_response["features"][0]
+
+# Название организации.
+org_name = organization["properties"]["CompanyMetaData"]["name"]
+org_time = organization["properties"]["CompanyMetaData"]['Hours']['text']
+# Адрес организации.
+org_address = organization["properties"]["CompanyMetaData"]["address"]
+
+# Получаем координаты ответа.
+point = organization["geometry"]["coordinates"]
+org_point = "{0},{1}".format(point[0], point[1])
+delta = "0.04"
+print('Адресс: {}'.format(org_address))
+print('Название: {}'.format(org_name))
+print('Время работы: {}'.format(org_time))
+print('Расстояние: {}км'.format(great_circle(org_point, address_ll).kilometers))
+# Собираем параметры для запроса к StaticMapsAPI:
+map_params = {
+    # позиционируем карту центром на наш исходный адрес
+    "ll": address_ll,
+    "spn": ",".join([delta, delta]),
+    "l": "map",
+    # добавим точку, чтобы указать найденную аптеку
+    "pt": "{0},pm2dgl~{1},pm2dgl".format(org_point, address_ll)
+}
+
+map_api_server = "http://static-maps.yandex.ru/1.x/"
+# ... и выполняем запрос
+response = requests.get(map_api_server, params=map_params)
+
+Image.open(BytesIO(
+    response.content)).show()
