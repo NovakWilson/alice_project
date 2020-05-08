@@ -50,7 +50,7 @@ def handle_dialog(res, req):
             res['response'][
                 'text'] = 'Приятно познакомиться, ' \
                           + first_name.title() \
-                          + '. Я - Алиса. Введите название города, в котором вы сейчас находитесь'
+                          + '. Я - Алиса. Введите название города, в котором Вы сейчас находитесь'
     else:
         if not sessionStorage[user_id]['is_city']:
             city = get_city(req)
@@ -118,8 +118,11 @@ def handle_dialog(res, req):
                     res['response']['text'] = 'Не могу найти данные Города. Возможно ' \
                           'ввод не соответствует требованиям.'
             elif tokens[0] == 'в' and tokens[1] == 'какой' and tokens[2] == 'стране':
-                country = get_country(tokens[-1])
-                res['response']['text'] = 'Страна: {}'.format(country)
+                try:
+                    country = get_country(tokens[-1])
+                    res['response']['text'] = 'Страна города {}: {}'.format(tokens[-1], country)
+                except:
+                    res['response']['text'] = 'Не могу найти страну. Возможно ввод не соответствует требованиям.'
 
 
 def get_city(req):
