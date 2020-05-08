@@ -84,7 +84,7 @@ def handle_dialog(res, req):
                                                   'но Вы можете посмотреть на город с карты. '
                         map_request = "http://static-maps.yandex.ru/1.x/?ll={}&spn=0.1,0.1&l=sat".format(address_ll)
                         response = requests.get(map_request)
-                        map_file = "map.png"
+                        map_file = "/map.png"
                         with open(map_file, "wb") as file:
                             file.write(response.content)
                         return
