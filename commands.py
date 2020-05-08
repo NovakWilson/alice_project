@@ -1,21 +1,33 @@
+import os
+import sys
+import pygame
 import requests
 
+response = None
+map_request = "http://static-maps.yandex.ru/1.x/?ll=141.378618,-26.316922&spn=34,34&l=sat"
+response = requests.get(map_request)
 
-def get_coordinates(city_name):
-    try:
-        url = "https://geocode-maps.yandex.ru/1.x/"
-        params = {
-            "apikey": "40d1649f-0493-4b70-98ba-98533de7710b",
-            'geocode': city_name,
-            'format': 'json'
-        }
-        response = requests.get(url, params)
-        json = response.json()
-        coordinates_str = json['response']['GeoObjectCollection'][
-            'featureMember'][0]['GeoObject']['Point']['pos']
-        return list(map(float, coordinates_str.split()))
-    except Exception as e:
-        return e
+if not response:
+    print("Ошибка выполнения запроса:")
+    print(map_request)
+    print("Http статус:", response.status_code, "(", response.reason, ")")
+    sys.exit(1)
 
+# Запишем полученное изображение в файл.
+map_file = "map.png"
+with open(map_file, "wb") as file:
+    file.write(response.content)
 
-print(get_coordinates(input()))
+# Инициализируем pygame
+pygame.init()
+screen = pygame.display.set_mode((600, 450))
+# Рисуем картинку, загружаемую из только что созданного файла.
+screen.blit(pygame.image.load(map_file), (0, 0))
+# Переключаем экран и ждем закрытия окна.
+pygame.display.flip()
+while pygame.event.wait().type != pygame.QUIT:
+    pass
+pygame.quit()
+
+# Удаляем за собой файл с изображением.
+os.remove(map_file)

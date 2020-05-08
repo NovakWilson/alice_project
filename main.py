@@ -10,6 +10,7 @@ app = Flask(__name__)
 logging.basicConfig(level=logging.INFO)
 search_api_server = "https://search-maps.yandex.ru/v1/"
 api_key = "531787e0-7e0b-410e-8bb8-280391f7e0cb"
+OAuth = 'AgAAAAAqf_iLAAT7o_EKmn5n1kmmvwSwyWpHM_I'
 sessionStorage = {}
 
 
@@ -76,7 +77,17 @@ def handle_dialog(res, req):
                 try:
                     response = requests.get(search_api_server, params=search_params)
                     json_response = response.json()
-                    organization = json_response["features"][0]
+                    try:
+                        organization = json_response["features"][0]
+                    except:
+                        res['response']['text'] = 'К сожалению Яндекс заблокировал нам доступ к своему справочнику, ' \
+                                                  'но Вы можете посмотреть на город с карты. '
+                        map_request = "http://static-maps.yandex.ru/1.x/?ll={}&spn=0.1,0.1&l=sat".format(address_ll)
+                        response = requests.get(map_request)
+                        map_file = "map.png"
+                        with open(map_file, "wb") as file:
+                            file.write(response.content)
+                        return
                     org_name = organization["properties"]["CompanyMetaData"]["name"]
                     try:
                         org_time = organization["properties"]["CompanyMetaData"]['Hours']['text']
