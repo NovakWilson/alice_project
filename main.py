@@ -48,7 +48,7 @@ def handle_dialog(res, req):
                           + '. Я - Алиса. Введите название города, в котором вы сейчас находитесь'
     else:
         city = get_city(req)
-        if city in None:
+        if city is None:
             res['response']['text'] = 'Не расслышала город. Повтори, пожалуйста!'
         else:
             res['response']['text'] = 'Понятно.'
