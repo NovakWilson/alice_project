@@ -65,10 +65,15 @@ def handle_dialog(res, req):
             res['response']['text'] = '''Вы можете: 
                                       1) Найти любой ближайший объект в вашем городе (аптека, больница, автосалон).
                                       Для этого введите: найти объект <сам объект>
+                                      
                                       2) Найти расстояние между двумя городами.
                                       Для этого введите: найти расстояние <город1> <город2>
+                                      
                                       3) Определить страну, в которой находится введенный город.
-                                      Для этого введите: в какой стране <город>'''
+                                      Для этого введите: в какой стране <город>
+                                      
+                                      4) Узнать погоду на завтра.
+                                      Для этого введите: погода на завтра'''
         else:
             x_cord = sessionStorage[user_id]['cords_from'][0]
             y_cord = sessionStorage[user_id]['cords_from'][1]
@@ -148,6 +153,22 @@ def handle_dialog(res, req):
                     res['response']['text'] = 'Страна города {}: {}'.format(tokens[-1], country)
                 except:
                     res['response']['text'] = 'Не могу найти страну. Возможно ввод не соответствует требованиям.'
+
+            elif tokens[0] == 'погода' and tokens[1] == 'на' and tokens[2] == 'завтра':
+                cords_to = get_coordinates(sessionStorage[user_id]['org']["address"])
+                lon = cords_to[0]
+                lat = cords_to[1]
+                headers = {'X-Yandex-API-Key': '85fe82fd-5e67-4043-9879-5f7a7640916c'}
+                url = 'https://api.weather.yandex.ru/v1/forecast?lat={}&lon={}'.format(lat, lon)
+                response = requests.get(url, headers=headers).json()
+                tomorrow_forecast = response['forecasts'][1]
+                night_temp = tomorrow_forecast['parts']['night']['temp_avg']
+                day_temp = tomorrow_forecast['parts']['day']['temp_avg']
+                res['response']['text'] = '''
+                                          Прогноз погоды на завтра:
+                                          1) Средняя температура ночью: {}
+                                          2) Средняя температура днем: {}
+                                          '''.format(night_temp, day_temp)
 
             elif req['request']['original_utterance'].lower() == 'показать время работы':
                 try:
