@@ -57,7 +57,8 @@ def handle_dialog(res, req):
             address = req['request']['original_utterance']
             cords_from = get_coordinates(address)
             if cords_from is None:
-                res['response']['text'] = 'Мы не смогли вас найти. Возможно адресс задан некорректно.'
+                res['response']['text'] = 'Мы не смогли вас найти. Возможно адресс задан некорректно. ' \
+                                          'Попробуйте еще раз.'
                 return
             sessionStorage[user_id]['is_address'] = True
             sessionStorage[user_id]['cords_from'] = cords_from
@@ -100,15 +101,26 @@ def handle_dialog(res, req):
                         org_time = organization["properties"]["CompanyMetaData"]['Hours']['text']
                     except:
                         org_time = 'Не указанно'
+                    sessionStorage[user_id]['org'] = organization["properties"]["CompanyMetaData"]
                     org_address = organization["properties"]["CompanyMetaData"]["address"]
                     res['response']['text'] = '''
                                               Адресс: {}.
                                               Название: {}
-                                              Время работы: {}
-                                              '''.format(org_address, org_name, org_time)
+                                              '''.format(org_address, org_name)
+                    res['response']['buttons'] = [
+                        {
+                            'title': 'Показать время работы',
+                            'hide': True
+                        },
+                        {
+                            'title': 'Показать на карте',
+                            'hide': True
+                        }
+                    ]
                 except:
                     res['response']['text'] = 'Не могу найти данный объект. Возможно он не обозначен или ' \
                                               'ввод не соответствует требованиям.'
+
             elif tokens[0] == 'найти' and tokens[1] == 'расстояние':
                 try:
                     city1 = tokens[-2]
@@ -119,12 +131,22 @@ def handle_dialog(res, req):
                 except:
                     res['response']['text'] = 'Не могу найти данные Города. Возможно ' \
                           'ввод не соответствует требованиям.'
+
             elif tokens[0] == 'в' and tokens[1] == 'какой' and tokens[2] == 'стране':
                 try:
                     country = get_country(tokens[-1])
                     res['response']['text'] = 'Страна города {}: {}'.format(tokens[-1], country)
                 except:
                     res['response']['text'] = 'Не могу найти страну. Возможно ввод не соответствует требованиям.'
+
+            elif req['request']['original_utterance'].lower() == 'показать время работы':
+                try:
+                    work_time = sessionStorage[user_id]['org']['Hours']['text']
+                except:
+                    work_time = 'Не указано'
+                res['response']['text'] = 'Время работы: {}'.format(work_time)
+                return
+
             else:
                 res['response']['text'] = '''Кроме этих команд я ничего не понимаю. Пока, что.
                           1) Найти любой ближайший объект в вашем городе (аптека, больница, автосалон).
