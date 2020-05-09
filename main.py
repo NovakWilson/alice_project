@@ -131,7 +131,7 @@ def handle_dialog(res, req):
                     res['response']['text'] = 'Не могу найти данный объект. Возможно он не обозначен или ' \
                                               'ввод не соответствует требованиям.'
 
-            elif tokens[0] == 'найти' and tokens[1] == 'расстояние':
+            elif tokens[0] in ['найти', 'найди'] and tokens[1] == 'расстояние':
                 try:
                     city1 = tokens[-2]
                     city2 = tokens[-1]
@@ -159,6 +159,26 @@ def handle_dialog(res, req):
                 res['response']['buttons'] = sessionStorage[user_id]['buttons']
                 return
 
+            elif req['request']['original_utterance'].lower() == 'показать на карте':
+                cords_to = get_coordinates(sessionStorage[user_id]['org']["address"])
+                #  map_request = "http://static-maps.yandex.ru/1.x/?ll={}&spn=0.1,0.1&l=map".format(cords_to)
+                json = {"url": "http://static-maps.yandex.ru/1.x/?ll={}&z=13&l=map".format(cords_to)}
+                headers = {'Authorization': 'OAuth AgAAAAAqf_iLAAT7o_EKmn5n1kmmvwSwyWpHM_I'}
+                url = 'https://dialogs.yandex.net/api/v1/skills/f014ed35-b7ff-4b51-969e-690abc790540/images'
+                response = requests.post(url, json=json, headers=headers).json()
+                image_id = response['image']['id']
+                res['response']['card'] = {}
+                res['response']['card']['type'] = 'BigImage'
+                res['response']['card']['title'] = sessionStorage[user_id]['org']['name']
+                res['response']['card']['image_id'] = image_id
+                res['response']['text'] = sessionStorage[user_id]['org']['address']
+                sessionStorage[user_id]['buttons'] = [i for i in sessionStorage[user_id]['buttons'] if not i['title'] == 'Показать на карте']
+                res['response']['buttons'] = sessionStorage[user_id]['buttons']
+
+                headers = {'Authorization': 'OAuth AgAAAAAqf_iLAAT7o_EKmn5n1kmmvwSwyWpHM_I'}
+                url = 'https://dialogs.yandex.net/api/v1/skills/f014ed35-b7ff-4b51-969e-690abc790540/images/{}'.format(image_id)
+                requests.delete(url, headers=headers)
+                return
             else:
                 res['response']['text'] = '''Кроме этих команд я ничего не понимаю. Пока, что.
                           1) Найти любой ближайший объект в вашем городе (аптека, больница, автосалон).
