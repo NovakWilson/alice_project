@@ -155,7 +155,7 @@ def handle_dialog(res, req):
                     res['response']['text'] = 'Не могу найти страну. Возможно ввод не соответствует требованиям.'
 
             elif tokens[0] == 'погода' and tokens[1] == 'на' and tokens[2] == 'завтра':
-                cords_to = get_coordinates(sessionStorage[user_id]['org']["address"])
+                cords_to = get_coordinates(sessionStorage[user_id]['cords_from'])
                 lon = cords_to[0]
                 lat = cords_to[1]
                 headers = {'X-Yandex-API-Key': '85fe82fd-5e67-4043-9879-5f7a7640916c'}
