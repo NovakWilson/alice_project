@@ -7,7 +7,7 @@ import requests
 
 app = Flask(__name__)
 
-logging.basicConfig(level=logging.INFO)
+#logging.basicConfig(level=logging.INFO)
 search_api_server = "https://search-maps.yandex.ru/v1/"
 api_key = "85a99676-6991-4b77-a07c-fe0cb368f96f"
 OAuth = 'AgAAAAAqf_iLAAT7o_EKmn5n1kmmvwSwyWpHM_I'
@@ -16,7 +16,7 @@ sessionStorage = {}
 
 @app.route('/post', methods=['POST'])
 def main():
-    logging.info(f'Request: {request.json!r}')
+    #logging.info(f'Request: {request.json!r}')
     response = {
         'session': request.json['session'],
         'version': request.json['version'],
@@ -25,7 +25,7 @@ def main():
         }
     }
     handle_dialog(response, request.json)
-    logging.info(f'Response: {response!r}')
+    #logging.info(f'Response: {response!r}')
     return json.dumps(response)
 
 
@@ -163,9 +163,11 @@ def handle_dialog(res, req):
                 cords_to = get_coordinates(sessionStorage[user_id]['org']["address"])
                 #  map_request = "http://static-maps.yandex.ru/1.x/?ll={}&spn=0.1,0.1&l=map".format(cords_to)
                 json = {"url": "http://static-maps.yandex.ru/1.x/?ll={}&z=13&l=map".format(cords_to)}
+                print(json)
                 headers = {'Authorization': 'OAuth AgAAAAAqf_iLAAT7o_EKmn5n1kmmvwSwyWpHM_I'}
                 url = 'https://dialogs.yandex.net/api/v1/skills/f014ed35-b7ff-4b51-969e-690abc790540/images'
                 response = requests.post(url, json=json, headers=headers).json()
+                print(response)
                 image_id = response['image']['id']
                 res['response']['card'] = {}
                 res['response']['card']['type'] = 'BigImage'
