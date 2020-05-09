@@ -162,7 +162,7 @@ def handle_dialog(res, req):
             elif req['request']['original_utterance'].lower() == 'показать на карте':
                 cords_to = get_coordinates(sessionStorage[user_id]['org']["address"])
                 #  map_request = "http://static-maps.yandex.ru/1.x/?ll={}&spn=0.1,0.1&l=map".format(cords_to)
-                json = {"url": "http://static-maps.yandex.ru/1.x/?ll={}&z=13&l=map".format(cords_to)}
+                json = {"url": "http://static-maps.yandex.ru/1.x/?ll={}&z=13&l=map".format(','.join([str(i) for i in cords_to]))}
                 print(json)
                 headers = {'Authorization': 'OAuth AgAAAAAqf_iLAAT7o_EKmn5n1kmmvwSwyWpHM_I'}
                 url = 'https://dialogs.yandex.net/api/v1/skills/f014ed35-b7ff-4b51-969e-690abc790540/images'
