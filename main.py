@@ -176,10 +176,11 @@ def handle_dialog(res, req):
                 res['response']['text'] = sessionStorage[user_id]['org']['address']
                 sessionStorage[user_id]['buttons'] = [i for i in sessionStorage[user_id]['buttons'] if not i['title'] == 'Показать на карте']
                 res['response']['buttons'] = sessionStorage[user_id]['buttons']
-
+                '''
                 headers = {'Authorization': 'OAuth AgAAAAAqf_iLAAT7o_EKmn5n1kmmvwSwyWpHM_I'}
                 url = 'https://dialogs.yandex.net/api/v1/skills/f014ed35-b7ff-4b51-969e-690abc790540/images/{}'.format(image_id)
                 requests.delete(url, headers=headers)
+                '''
                 return
             else:
                 res['response']['text'] = '''Кроме этих команд я ничего не понимаю. Пока, что.
