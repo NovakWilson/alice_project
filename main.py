@@ -102,6 +102,16 @@ def handle_dialog(res, req):
                     except:
                         org_time = 'Не указанно'
                     sessionStorage[user_id]['org'] = organization["properties"]["CompanyMetaData"]
+                    sessionStorage[user_id]['buttons'] = [
+                        {
+                            'title': 'Показать время работы',
+                            'hide': True
+                        },
+                        {
+                            'title': 'Показать на карте',
+                            'hide': True
+                        }
+                    ]
                     org_address = organization["properties"]["CompanyMetaData"]["address"]
                     res['response']['text'] = '''
                                               Адресс: {}.
@@ -145,6 +155,7 @@ def handle_dialog(res, req):
                 except:
                     work_time = 'Не указано'
                 res['response']['text'] = 'Время работы: {}'.format(work_time)
+                sessionStorage[user_id]['buttons'] = [i for i in sessionStorage[user_id]['buttons'] if not i['title'] == 'Показать время работы']
                 return
 
             else:
