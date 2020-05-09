@@ -7,7 +7,7 @@ import requests
 
 app = Flask(__name__)
 
-#logging.basicConfig(level=logging.INFO)
+#  logging.basicConfig(level=logging.INFO)
 search_api_server = "https://search-maps.yandex.ru/v1/"
 api_key = "85a99676-6991-4b77-a07c-fe0cb368f96f"
 OAuth = 'AgAAAAAqf_iLAAT7o_EKmn5n1kmmvwSwyWpHM_I'
@@ -16,7 +16,7 @@ sessionStorage = {}
 
 @app.route('/post', methods=['POST'])
 def main():
-    #logging.info(f'Request: {request.json!r}')
+    #  logging.info(f'Request: {request.json!r}')
     response = {
         'session': request.json['session'],
         'version': request.json['version'],
@@ -25,7 +25,7 @@ def main():
         }
     }
     handle_dialog(response, request.json)
-    #logging.info(f'Response: {response!r}')
+    #  logging.info(f'Response: {response!r}')
     return json.dumps(response)
 
 
@@ -160,16 +160,20 @@ def handle_dialog(res, req):
                 lat = cords_to[1]
                 headers = {'X-Yandex-API-Key': '85fe82fd-5e67-4043-9879-5f7a7640916c'}
                 url = 'https://api.weather.yandex.ru/v1/forecast?lat={}&lon={}'.format(lat, lon)
+                weather = {'overcast-and-light-rain': 'облачно и легкий-дождь', 'overcast': 'пасмурная погода',
+                           'clear': 'ясная погода', 'partly-cloudy': 'местами облачно'}
                 response = requests.get(url, headers=headers).json()
                 tomorrow_forecast = response['forecasts'][1]
                 night_temp = tomorrow_forecast['parts']['night']['temp_avg']
                 day_temp = tomorrow_forecast['parts']['day']['temp_avg']
+                day_condition = tomorrow_forecast['parts']['day']['condition']
+                day_weather = weather[day_condition]
                 res['response']['text'] = '''
                                           Прогноз погоды на завтра:
-                                          1) Средняя температура ночью: {}
-                                          2) Средняя температура днем: {}
-                                          '''.format(night_temp, day_temp)
-
+                                          Днем будет {}
+                                          Средняя температура ночью: {}
+                                          Средняя температура днем: {}
+                                          '''.format(day_weather, night_temp, day_temp)
             elif req['request']['original_utterance'].lower() == 'показать время работы':
                 try:
                     work_time = sessionStorage[user_id]['org']['Hours']['text']
