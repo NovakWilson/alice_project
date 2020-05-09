@@ -156,6 +156,7 @@ def handle_dialog(res, req):
                     work_time = 'Не указано'
                 res['response']['text'] = 'Время работы: {}'.format(work_time)
                 sessionStorage[user_id]['buttons'] = [i for i in sessionStorage[user_id]['buttons'] if not i['title'] == 'Показать время работы']
+                res['response']['buttons'] = sessionStorage[user_id]['buttons']
                 return
 
             else:
