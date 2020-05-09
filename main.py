@@ -36,8 +36,8 @@ def handle_dialog(res, req):
         res['response']['text'] = 'Привет! Назови свое имя!'
         sessionStorage[user_id] = {
             'first_name': None,
-            'is_city': False,
-            'city': ''
+            'is_address': False,
+            'cords_from': ''
         }
         return
     if sessionStorage[user_id]['first_name'] is None:
@@ -50,25 +50,27 @@ def handle_dialog(res, req):
             res['response'][
                 'text'] = 'Приятно познакомиться, ' \
                           + first_name.title() \
-                          + '. Я - Алиса. Введите название города, в котором Вы сейчас находитесь'
+                          + '. Я - Алиса. Я могу найти любой ближайший к вам объект, для этого ' \
+                            'введите свой адрес'
     else:
-        if not sessionStorage[user_id]['is_city']:
-            city = get_city(req)
-            if city is None:
-                res['response']['text'] = 'Не расслышала город. Повтори, пожалуйста!'
-            else:
-                sessionStorage[user_id]['is_city'] = True
-                sessionStorage[user_id]['city'] = city
-                res['response']['text'] = '''Вы можете: 
-                                          1) Найти любой ближайший объект в вашем городе (аптека, больница, автосалон).
-                                          Для этого введите: найти объект <сам объект>
-                                          2) Найти расстояние между двумя городами.
-                                          Для этого введите: найти расстояние <город1> <город2>
-                                          3) Определить страну, в которой находится введенный город.
-                                          Для этого введите: в какой стране <город>'''
+        if not sessionStorage[user_id]['is_address']:
+            address = req['request']['original_utterance']
+            cords_from = get_coordinates(address)
+            if cords_from is None:
+                res['response']['text'] = 'Мы не смогли вас найти. Возможно адресс задан некорректно.'
+                return
+            sessionStorage[user_id]['is_address'] = True
+            sessionStorage[user_id]['cords_from'] = cords_from
+            res['response']['text'] = '''Вы можете: 
+                                      1) Найти любой ближайший объект в вашем городе (аптека, больница, автосалон).
+                                      Для этого введите: найти объект <сам объект>
+                                      2) Найти расстояние между двумя городами.
+                                      Для этого введите: найти расстояние <город1> <город2>
+                                      3) Определить страну, в которой находится введенный город.
+                                      Для этого введите: в какой стране <город>'''
         else:
-            x_cord = get_coordinates(sessionStorage[user_id]['city'])[0]
-            y_cord = get_coordinates(sessionStorage[user_id]['city'])[1]
+            x_cord = sessionStorage[user_id]['cords_from'][0]
+            y_cord = sessionStorage[user_id]['cords_from'][1]
             address_ll = '{},{}'.format(x_cord, y_cord)
             tokens = req['request']['nlu']['tokens']
             if tokens[0] == 'найти' and tokens[1] == 'объект':
@@ -163,6 +165,8 @@ def get_coordinates(city_name):
     }
     response = requests.get(url, params)
     json = response.json()
+    if json['response']['GeoObjectCollection']['metaDataProperty']['GeocoderResponseMetaData']['found'] == '0':
+        return None
     coordinates_str = json['response']['GeoObjectCollection'][
         'featureMember'][0]['GeoObject']['Point']['pos']
     return list(map(float, coordinates_str.split()))
