@@ -28,9 +28,13 @@ for i in response['forecasts']:
 Средняя температура ночью: {}
 Средняя температура днем: {}
 '''.format(week_day.title(), i['date'], day_weather, night_temp, day_temp)
-print(final_message)
-print(len(final_message))
 
+#  print(final_message)
+#  print(len(final_message))
+
+a = 12.3456789
+a = "%.1f" % a
+print(a)
 
 '''
 tomorrow_forecast = response['forecasts'][1]

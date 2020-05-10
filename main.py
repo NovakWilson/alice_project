@@ -117,10 +117,11 @@ def handle_dialog(res, req):
                     org_address = organization["properties"]["CompanyMetaData"]["address"]
                     cords_to = get_coordinates(org_address)
                     distance = get_distance(sessionStorage[user_id]['cords_from'], cords_to)
+                    distance = "%.1f" % distance
                     res['response']['text'] = '''
                                               Адресс: {}.
                                               Название: {}.
-                                              Расстояние: {}.
+                                              Расстояние: {} км.
                                               '''.format(org_address, org_name, distance)
                     res['response']['buttons'] = [
                         {
