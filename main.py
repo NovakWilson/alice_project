@@ -87,7 +87,6 @@ def handle_dialog(res, req):
             address_ll = '{},{}'.format(x_cord, y_cord)
             tokens = req['request']['nlu']['tokens']
 
-            #if tokens[0] == 'найти' and tokens[1] == 'объект':
             if 'найти объект' in req['request']['original_utterance'].lower():
                 search_params = {
                     "apikey": api_key,
@@ -139,7 +138,8 @@ def handle_dialog(res, req):
                     res['response']['text'] = 'Не могу найти данный объект. Возможно он не обозначен или ' \
                                               'ввод не соответствует требованиям.'
 
-            elif tokens[0] in ['найти', 'найди'] and tokens[1] == 'расстояние':
+            #elif tokens[0] in ['найти', 'найди'] and tokens[1] == 'расстояние':
+            elif 'найти расстояние' in req['request']['original_utterance'].lower():
                 try:
                     city1 = tokens[-2]
                     city2 = tokens[-1]
@@ -150,14 +150,16 @@ def handle_dialog(res, req):
                     res['response']['text'] = 'Не могу найти данные Города. Возможно ' \
                           'ввод не соответствует требованиям.'
 
-            elif tokens[0] == 'в' and tokens[1] == 'какой' and tokens[2] == 'стране':
+            #elif tokens[0] == 'в' and tokens[1] == 'какой' and tokens[2] == 'стране':
+            elif 'в какой стране' in req['request']['original_utterance'].lower():
                 try:
                     country = get_country(tokens[-1])
                     res['response']['text'] = 'Страна города {}: {}'.format(tokens[-1], country)
                 except:
                     res['response']['text'] = 'Не могу найти страну. Возможно ввод не соответствует требованиям.'
 
-            elif tokens[0] == 'погода' and tokens[1] == 'на' and tokens[2] == 'завтра':
+            #elif tokens[0] == 'погода' and tokens[1] == 'на' and tokens[2] == 'завтра':
+            elif 'погода на завтра' in req['request']['original_utterance'].lower():
                 cords_to = sessionStorage[user_id]['cords_from']
                 lon = cords_to[0]
                 lat = cords_to[1]
@@ -183,7 +185,8 @@ def handle_dialog(res, req):
                                           Средняя температура днем: {}
                                           '''.format(day_weather, night_temp, day_temp)
 
-            elif tokens[0] == 'погода' and tokens[1] == 'на' and tokens[2] == 'неделю':
+            #elif tokens[0] == 'погода' and tokens[1] == 'на' and tokens[2] == 'неделю':
+            elif 'погода на неделю' in req['request']['original_utterance'].lower():
                 cords_to = sessionStorage[user_id]['cords_from']
                 lon = cords_to[0]
                 lat = cords_to[1]
