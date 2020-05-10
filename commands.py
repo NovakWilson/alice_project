@@ -6,7 +6,12 @@ url = 'https://api.weather.yandex.ru/v1/forecast?lat=55.75396&lon=37.620393'
 days = {'0': 'понедельник', '1': 'вторник', '2': 'среда', '3': 'четверг',
         '4': 'пятница', '5': 'суббота', '6': 'воскресенье', }
 weather = {'overcast-and-light-rain': 'облачно и легкий-дождь', 'overcast': 'пасмурная погода',
-           'clear': 'ясная погода', 'partly-cloudy': 'местами облачно', 'cloudy': 'облачно'}
+           'clear': 'ясная погода', 'partly-cloudy': 'малооблачно', 'cloudy': 'облачно с прояснениями',
+           'partly-cloudy-and-light-rain': 'небольшой дождь', 'partly-cloudy-and-rain': 'дождь',
+           'overcast-and-rain': 'сильный дождь', 'overcast-thunderstorms-with-rain': 'сильный дождь, гроза',
+           'cloudy-and-rain': 'дождь', 'overcast-and-wet-snow': 'дождь со снегом',
+           'partly-cloudy-and-light-snow': 'небольшой снег', 'partly-cloudy-and-snow': 'идти снег',
+           'overcast-and-snow': 'снегопад', 'cloudy-and-snow': 'идти снег'}
 response = requests.get(url, headers=headers).json()
 final_message = ''
 for i in response['forecasts']:
