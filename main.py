@@ -190,6 +190,7 @@ def handle_dialog(res, req):
                            'partly-cloudy-and-light-snow': 'небольшой снег', 'partly-cloudy-and-snow': 'идти снег',
                            'overcast-and-snow': 'снегопад', 'cloudy-and-snow': 'идти снег'}
                 response = requests.get(url, headers=headers).json()
+                final_message = ''
                 for i in response['forecasts']:
                     day_number = i['date'].split('-')
                     day = datetime.datetime(int(day_number[0]), int(day_number[1]), int(day_number[2]))
@@ -198,10 +199,12 @@ def handle_dialog(res, req):
                     day_temp = i['parts']['day']['temp_avg']
                     day_condition = i['parts']['day']['condition']
                     day_weather = weather[day_condition]
-                    print('''Погода на {} ({}):
+                    final_message += '''Погода на {} ({}):
                          Днем будет {}
                          Средняя температура ночью: {}
-                         Средняя температура днем: {}'''.format(week_day, i['date'], day_weather, night_temp, day_temp))
+                         Средняя температура днем: {}
+                         '''.format(week_day, i['date'], day_weather, night_temp, day_temp)
+                    res['response']['text'] = final_message
 
             elif req['request']['original_utterance'].lower() == 'показать время работы':
                 try:
