@@ -150,7 +150,7 @@ def handle_dialog(res, req):
                     res['response']['text'] = 'Расстояние между этими городами: ' + \
                               str(round(distance)) + ' км.'
                 except:
-                    res['response']['text'] = 'Не могу найти данные Города. Возможно ' \
+                    res['response']['text'] = 'Не могу найти расстояние. Возможно ' \
                           'ввод не соответствует требованиям.'
 
             elif 'в какой стране' in req['request']['original_utterance'].lower():
@@ -260,9 +260,9 @@ def handle_dialog(res, req):
                     string = ''
                     for i in tokens[2:]:
                         string += i + ' '
-                    res['response']['text'] = translate(string)
+                    res['response']['text'] = 'Перевод: {}'.format(translate(string))
                 except:
-                    res['response']['text'] = 'Я не смогла перевести данную фразу.' \
+                    res['response']['text'] = 'Я не смогла перевести данную фразу. ' \
                                               'Возможно ввод не соответствует требованиям.'
 
             else:
