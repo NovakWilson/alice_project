@@ -4,6 +4,7 @@ import logging
 import json
 import os
 import requests
+import datetime
 
 app = Flask(__name__)
 
@@ -73,7 +74,10 @@ def handle_dialog(res, req):
                                       Для этого введите: в какой стране <город>
                                       
                                       4) Узнать погоду на завтра.
-                                      Для этого введите: погода на завтра'''
+                                      Для этого введите: погода на завтра
+                                      
+                                      5) Узнать погоду на неделю вперед.
+                                      Для этого введите: погода на неделю'''
         else:
             x_cord = sessionStorage[user_id]['cords_from'][0]
             y_cord = sessionStorage[user_id]['cords_from'][1]
@@ -90,17 +94,7 @@ def handle_dialog(res, req):
                 try:
                     response = requests.get(search_api_server, params=search_params)
                     json_response = response.json()
-                    try:
-                        organization = json_response["features"][0]
-                    except:
-                        res['response']['text'] = 'К сожалению Яндекс заблокировал нам доступ к своему справочнику, ' \
-                                                  'но Вы можете посмотреть на город с карты. '
-                        map_request = "http://static-maps.yandex.ru/1.x/?ll={}&spn=0.1,0.1&l=sat".format(address_ll)
-                        response = requests.get(map_request)
-                        map_file = "/map.png"
-                        with open(map_file, "wb") as file:
-                            file.write(response.content)
-                        return
+                    organization = json_response["features"][0]
                     org_name = organization["properties"]["CompanyMetaData"]["name"]
                     try:
                         org_time = organization["properties"]["CompanyMetaData"]['Hours']['text']
@@ -161,7 +155,12 @@ def handle_dialog(res, req):
                 headers = {'X-Yandex-API-Key': '85fe82fd-5e67-4043-9879-5f7a7640916c'}
                 url = 'https://api.weather.yandex.ru/v1/forecast?lat={}&lon={}'.format(lat, lon)
                 weather = {'overcast-and-light-rain': 'облачно и легкий-дождь', 'overcast': 'пасмурная погода',
-                           'clear': 'ясная погода', 'partly-cloudy': 'местами облачно'}
+                           'clear': 'ясная погода', 'partly-cloudy': 'малооблачно', 'cloudy': 'облачно с прояснениями',
+                           'partly-cloudy-and-light-rain': 'небольшой дождь', 'partly-cloudy-and-rain': 'дождь',
+                           'overcast-and-rain': 'сильный дождь', 'overcast-thunderstorms-with-rain': 'сильный дождь, гроза',
+                           'cloudy-and-rain': 'дождь', 'overcast-and-wet-snow': 'дождь со снегом',
+                           'partly-cloudy-and-light-snow': 'небольшой снег', 'partly-cloudy-and-snow': 'идти снег',
+                           'overcast-and-snow': 'снегопад', 'cloudy-and-snow': 'идти снег'}
                 response = requests.get(url, headers=headers).json()
                 tomorrow_forecast = response['forecasts'][1]
                 night_temp = tomorrow_forecast['parts']['night']['temp_avg']
@@ -174,6 +173,36 @@ def handle_dialog(res, req):
                                           Средняя температура ночью: {}
                                           Средняя температура днем: {}
                                           '''.format(day_weather, night_temp, day_temp)
+
+            elif tokens[0] == 'погода' and tokens[1] == 'на' and tokens[2] == 'неделю':
+                cords_to = sessionStorage[user_id]['cords_from']
+                lon = cords_to[0]
+                lat = cords_to[1]
+                headers = {'X-Yandex-API-Key': '85fe82fd-5e67-4043-9879-5f7a7640916c'}
+                url = 'https://api.weather.yandex.ru/v1/forecast?lat={}&lon={}'.format(lat, lon)
+                days = {'0': 'понедельник', '1': 'вторник', '2': 'среда', '3': 'четверг',
+                        '4': 'пятница', '5': 'суббота', '6': 'воскресенье', }
+                weather = {'overcast-and-light-rain': 'облачно и легкий-дождь', 'overcast': 'пасмурная погода',
+                           'clear': 'ясная погода', 'partly-cloudy': 'малооблачно', 'cloudy': 'облачно с прояснениями',
+                           'partly-cloudy-and-light-rain': 'небольшой дождь', 'partly-cloudy-and-rain': 'дождь',
+                           'overcast-and-rain': 'сильный дождь', 'overcast-thunderstorms-with-rain': 'сильный дождь, гроза',
+                           'cloudy-and-rain': 'дождь', 'overcast-and-wet-snow': 'дождь со снегом',
+                           'partly-cloudy-and-light-snow': 'небольшой снег', 'partly-cloudy-and-snow': 'идти снег',
+                           'overcast-and-snow': 'снегопад', 'cloudy-and-snow': 'идти снег'}
+                response = requests.get(url, headers=headers).json()
+                for i in response['forecasts']:
+                    day_number = i['date'].split('-')
+                    day = datetime.datetime(int(day_number[0]), int(day_number[1]), int(day_number[2]))
+                    week_day = days[str(day.weekday())]
+                    night_temp = i['parts']['night']['temp_avg']
+                    day_temp = i['parts']['day']['temp_avg']
+                    day_condition = i['parts']['day']['condition']
+                    day_weather = weather[day_condition]
+                    print('''Погода на {} ({}):
+                         Днем будет {}
+                         Средняя температура ночью: {}
+                         Средняя температура днем: {}'''.format(week_day, i['date'], day_weather, night_temp, day_temp))
+
             elif req['request']['original_utterance'].lower() == 'показать время работы':
                 try:
                     work_time = sessionStorage[user_id]['org']['Hours']['text']
