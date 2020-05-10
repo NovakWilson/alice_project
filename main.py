@@ -11,6 +11,7 @@ app = Flask(__name__)
 #  logging.basicConfig(level=logging.INFO)
 search_api_server = "https://search-maps.yandex.ru/v1/"
 api_key = "85a99676-6991-4b77-a07c-fe0cb368f96f"
+APIKEY = 'trnsl.1.1.20200430T160157Z.57feabe2d5c38c3a.aabbb8850063014bb3e400a8fd5b429e8728eecb'
 OAuth = 'AgAAAAAqf_iLAAT7o_EKmn5n1kmmvwSwyWpHM_I'
 sessionStorage = {}
 
@@ -79,7 +80,10 @@ def handle_dialog(res, req):
                   Для этого введите: найти расстояние <город1> <город2>
                   
                   5) Определить страну, в которой находится любой введенный город.
-                  Для этого введите: в какой стране <город>'''
+                  Для этого введите: в какой стране <город>
+                  
+                  6) Перевести слово или фразу.
+                  Для этого введите: переведи фразу <фраза>'''
 
         else:
             x_cord = sessionStorage[user_id]['cords_from'][0]
@@ -138,7 +142,6 @@ def handle_dialog(res, req):
                     res['response']['text'] = 'Не могу найти данный объект. Возможно он не обозначен или ' \
                                               'ввод не соответствует требованиям.'
 
-            #elif tokens[0] in ['найти', 'найди'] and tokens[1] == 'расстояние':
             elif 'найти расстояние' in req['request']['original_utterance'].lower():
                 try:
                     city1 = tokens[-2]
@@ -150,15 +153,13 @@ def handle_dialog(res, req):
                     res['response']['text'] = 'Не могу найти данные Города. Возможно ' \
                           'ввод не соответствует требованиям.'
 
-            #elif tokens[0] == 'в' and tokens[1] == 'какой' and tokens[2] == 'стране':
             elif 'в какой стране' in req['request']['original_utterance'].lower():
                 try:
                     country = get_country(tokens[-1])
-                    res['response']['text'] = 'Страна города {}: {}'.format(tokens[-1], country)
+                    res['response']['text'] = 'Страна города {}: {}'.format(tokens[-1].title(), country)
                 except:
                     res['response']['text'] = 'Не могу найти страну. Возможно ввод не соответствует требованиям.'
 
-            #elif tokens[0] == 'погода' and tokens[1] == 'на' and tokens[2] == 'завтра':
             elif 'погода на завтра' in req['request']['original_utterance'].lower():
                 cords_to = sessionStorage[user_id]['cords_from']
                 lon = cords_to[0]
@@ -185,7 +186,6 @@ def handle_dialog(res, req):
                                           Средняя температура днем: {}
                                           '''.format(day_weather, night_temp, day_temp)
 
-            #elif tokens[0] == 'погода' and tokens[1] == 'на' and tokens[2] == 'неделю':
             elif 'погода на неделю' in req['request']['original_utterance'].lower():
                 cords_to = sessionStorage[user_id]['cords_from']
                 lon = cords_to[0]
@@ -254,6 +254,17 @@ def handle_dialog(res, req):
                 requests.delete(url, headers=headers)
                 '''
                 return
+
+            elif 'переведи фразу' in req['request']['original_utterance'].lower():
+                try:
+                    string = ''
+                    for i in tokens[2:]:
+                        string += i + ' '
+                    res['response']['text'] = translate(string)
+                except:
+                    res['response']['text'] = 'Я не смогла перевести данную фразу.' \
+                                              'Возможно ввод не соответствует требованиям.'
+
             else:
                 res['response']['text'] = '''Кроме этих команд я ничего не умею. Пока, что.                             
                       1) Найти любой ближайший объект в вашем городе (например: аптека, магазин, больница, автосалон).
@@ -343,6 +354,14 @@ def get_country(city):
     json = response.json()
 
     return json['response']['GeoObjectCollection']['featureMember'][0]['GeoObject']['metaDataProperty']['GeocoderMetaData']['AddressDetails']['Country']['CountryName']
+
+
+def translate(text):
+    params = {'lang': 'en',
+              'key': 'trnsl.1.1.20200430T160157Z.57feabe2d5c38c3a.aabbb8850063014bb3e400a8fd5b429e8728eecb',
+              'text': text}
+    res = requests.post(url='https://translate.yandex.net/api/v1.5/tr.json/translate', params=params).json()
+    return res['text'][0]
 
 
 if __name__ == '__main__':
