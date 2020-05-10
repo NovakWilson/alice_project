@@ -200,11 +200,11 @@ def handle_dialog(res, req):
                     day_condition = i['parts']['day']['condition']
                     day_weather = weather[day_condition]
                     final_message += '''
-                    Погода на {} ({}):
-                    Днем будет {}
-                    Средняя температура ночью: {}
-                    Средняя температура днем: {}
-                    '''.format(week_day, i['date'], day_weather, night_temp, day_temp)
+Погода на {} ({}):
+Днем будет {}
+Средняя температура ночью: {}
+Средняя температура днем: {}
+'''.format(week_day, i['date'], day_weather, night_temp, day_temp)
                     res['response']['text'] = final_message
 
             elif req['request']['original_utterance'].lower() == 'показать время работы':
