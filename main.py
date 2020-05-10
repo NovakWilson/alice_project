@@ -53,7 +53,7 @@ def handle_dialog(res, req):
                           + first_name.title() \
                           + '. Я - Алиса. У меня есть много полезных функций, таких как: Поиск ближайшего объекта, ' \
                             'запрос информации о прогнозе погоды, нахождение расстояния между двумя городами и многое другое. ' \
-                            'Для этого введите свой адрес.'
+                            'Для этого введите свой адрес. Пример: Заречный улица строителей 3б'
     else:
         if not sessionStorage[user_id]['is_address']:
             address = req['request']['original_utterance']
@@ -65,7 +65,7 @@ def handle_dialog(res, req):
                 return
             sessionStorage[user_id]['is_address'] = True
             sessionStorage[user_id]['cords_from'] = cords_from
-            res['response']['text'] = '''Вы можете: 
+            res['response']['text'] = '''Ваше положение установлено. Вы можете: 
                   1) Найти любой ближайший объект в вашем городе (аптека, магазин, больница, автосалон).
                   Для этого введите: найти объект <сам объект>
                   
