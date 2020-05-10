@@ -51,9 +51,9 @@ def handle_dialog(res, req):
             res['response'][
                 'text'] = 'Приятно познакомиться, ' \
                           + first_name.title() \
-                          + '. Я - Алиса, помощник туристу во время путешествия. С моей помощью можно: Найти ближайший объект, ' \
+                          + '. Я - Алиса, помощник туристу во время путешествий. С моей помощью можно: Найти ближайший объект, ' \
                             'узнать информацию о прогнозе погоды, найти расстояния между двумя городами и многое другое. ' \
-                            'Для этого введите свой адрес. Пример: Заречный улица строителей 3б'
+                            'Для этого введите свой адрес. Пример ввода: Заречный улица строителей 3б'
     else:
         if not sessionStorage[user_id]['is_address']:
             address = req['request']['original_utterance']
@@ -87,7 +87,8 @@ def handle_dialog(res, req):
             address_ll = '{},{}'.format(x_cord, y_cord)
             tokens = req['request']['nlu']['tokens']
 
-            if tokens[0] == 'найти' and tokens[1] == 'объект':
+            #if tokens[0] == 'найти' and tokens[1] == 'объект':
+            if 'найти объект' in req['request']['original_utterance'].lower():
                 search_params = {
                     "apikey": api_key,
                     "text": tokens[2:],
@@ -230,7 +231,7 @@ def handle_dialog(res, req):
             elif req['request']['original_utterance'].lower() == 'показать на карте':
                 cords_to = get_coordinates(sessionStorage[user_id]['org']["address"])
                 #  map_request = "http://static-maps.yandex.ru/1.x/?ll={}&spn=0.1,0.1&l=map".format(cords_to)
-                json = {"url": "http://static-maps.yandex.ru/1.x/?ll={}&z=13&l=map".format(','.join([str(i) for i in cords_to]))}
+                json = {"url": "http://static-maps.yandex.ru/1.x/?ll={}&z=14&l=map".format(','.join([str(i) for i in cords_to]))}
                 print(json)
                 headers = {'Authorization': 'OAuth AgAAAAAqf_iLAAT7o_EKmn5n1kmmvwSwyWpHM_I'}
                 url = 'https://dialogs.yandex.net/api/v1/skills/f014ed35-b7ff-4b51-969e-690abc790540/images'
