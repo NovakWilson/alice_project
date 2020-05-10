@@ -23,7 +23,6 @@ for i in response['forecasts']:
 Средняя температура ночью: {}
 Средняя температура днем: {}
 '''.format(week_day.title(), i['date'], day_weather, night_temp, day_temp)
-
 print(final_message)
 print(len(final_message))
 
