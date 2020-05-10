@@ -85,6 +85,7 @@ def handle_dialog(res, req):
             y_cord = sessionStorage[user_id]['cords_from'][1]
             address_ll = '{},{}'.format(x_cord, y_cord)
             tokens = req['request']['nlu']['tokens']
+
             if tokens[0] == 'найти' and tokens[1] == 'объект':
                 search_params = {
                     "apikey": api_key,
@@ -114,10 +115,13 @@ def handle_dialog(res, req):
                         }
                     ]
                     org_address = organization["properties"]["CompanyMetaData"]["address"]
+                    cords_to = get_coordinates(org_address)
+                    distance = get_distance(sessionStorage[user_id]['cords_from'], cords_to)
                     res['response']['text'] = '''
                                               Адресс: {}.
-                                              Название: {}
-                                              '''.format(org_address, org_name)
+                                              Название: {}.
+                                              Расстояние: {}.
+                                              '''.format(org_address, org_name, distance)
                     res['response']['buttons'] = [
                         {
                             'title': 'Показать время работы',
@@ -224,7 +228,7 @@ def handle_dialog(res, req):
             elif req['request']['original_utterance'].lower() == 'показать на карте':
                 cords_to = get_coordinates(sessionStorage[user_id]['org']["address"])
                 #  map_request = "http://static-maps.yandex.ru/1.x/?ll={}&spn=0.1,0.1&l=map".format(cords_to)
-                json = {"url": "http://static-maps.yandex.ru/1.x/?ll={}&z=14&l=map".format(','.join([str(i) for i in cords_to]))}
+                json = {"url": "http://static-maps.yandex.ru/1.x/?ll={}&z=13&l=map".format(','.join([str(i) for i in cords_to]))}
                 print(json)
                 headers = {'Authorization': 'OAuth AgAAAAAqf_iLAAT7o_EKmn5n1kmmvwSwyWpHM_I'}
                 url = 'https://dialogs.yandex.net/api/v1/skills/f014ed35-b7ff-4b51-969e-690abc790540/images'
@@ -245,7 +249,7 @@ def handle_dialog(res, req):
                 '''
                 return
             else:
-                res['response']['text'] = '''Кроме этих команд я ничего не умею. Пока, что                             
+                res['response']['text'] = '''Кроме этих команд я ничего не умею. Пока, что.                             
                       1) Найти любой ближайший объект в вашем городе (аптека, магазин, больница, автосалон).
                       Для этого введите: найти объект <сам объект>
                       
