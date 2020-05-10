@@ -8,6 +8,7 @@ days = {'0': 'понедельник', '1': 'вторник', '2': 'среда',
 weather = {'overcast-and-light-rain': 'облачно и легкий-дождь', 'overcast': 'пасмурная погода',
            'clear': 'ясная погода', 'partly-cloudy': 'местами облачно', 'cloudy': 'облачно'}
 response = requests.get(url, headers=headers).json()
+final_message = ''
 for i in response['forecasts']:
     day_number = i['date'].split('-')
     day = datetime.datetime(int(day_number[0]), int(day_number[1]), int(day_number[2]))
@@ -16,10 +17,15 @@ for i in response['forecasts']:
     day_temp = i['parts']['day']['temp_avg']
     day_condition = i['parts']['day']['condition']
     day_weather = weather[day_condition]
-    print('''Погода на {} ({}):
-         Днем будет {}
-         Средняя температура ночью: {}
-         Средняя температура днем: {}'''.format(week_day, i['date'], day_weather, night_temp, day_temp))
+    final_message += '''
+    Погода на {} ({}):
+    Днем будет {}
+    Средняя температура ночью: {}
+    Средняя температура днем: {}
+    '''.format(week_day, i['date'], day_weather, night_temp, day_temp)
+
+print(final_message)
+print(len(final_message))
 
 
 '''
