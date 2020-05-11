@@ -13,6 +13,117 @@ search_api_server = "https://search-maps.yandex.ru/v1/"
 api_key = "85a99676-6991-4b77-a07c-fe0cb368f96f"
 APIKEY = 'trnsl.1.1.20200430T160157Z.57feabe2d5c38c3a.aabbb8850063014bb3e400a8fd5b429e8728eecb'
 OAuth = 'AgAAAAAqf_iLAAT7o_EKmn5n1kmmvwSwyWpHM_I'
+WEATHER = {'overcast-and-light-rain': 'облачно и легкий-дождь',
+           'overcast': 'пасмурная погода',
+           'clear': 'ясная погода',
+           'partly-cloudy': 'малооблачно',
+           'cloudy': 'облачно с прояснениями',
+           'partly-cloudy-and-light-rain': 'небольшой дождь',
+           'partly-cloudy-and-rain': 'дождь',
+           'overcast-and-rain': 'сильный дождь',
+           'overcast-thunderstorms-with-rain': 'сильный дождь, гроза',
+           'cloudy-and-rain': 'дождь',
+           'overcast-and-wet-snow': 'дождь со снегом',
+           'partly-cloudy-and-light-snow': 'небольшой снег',
+           'partly-cloudy-and-snow': 'идти снег',
+           'overcast-and-snow': 'снегопад',
+           'cloudy-and-snow': 'идти снег'}
+LANGUAGES = {
+        "af": "Африкаанс",
+        "am": "Амхарский",
+        "ar": "Арабский",
+        "az": "Азербайджанский",
+        "ba": "Башкирский",
+        "be": "Белорусский",
+        "bg": "Болгарский",
+        "bn": "Бенгальский",
+        "bs": "Боснийский",
+        "ca": "Каталанский",
+        "ceb": "Себуанский",
+        "cs": "Чешский",
+        "cv": "Чувашский",
+        "cy": "Валлийский",
+        "da": "Датский",
+        "de": "Немецкий",
+        "el": "Греческий",
+        "en": "Английский",
+        "eo": "Эсперанто",
+        "es": "Испанский",
+        "et": "Эстонский",
+        "eu": "Баскский",
+        "fa": "Персидский",
+        "fi": "Финский",
+        "fr": "Французский",
+        "ga": "Ирландский",
+        "gd": "Шотландский (гэльский)",
+        "gl": "Галисийский",
+        "gu": "Гуджарати",
+        "he": "Иврит",
+        "hi": "Хинди",
+        "hr": "Хорватский",
+        "ht": "Гаитянский",
+        "hu": "Венгерский",
+        "hy": "Армянский",
+        "id": "Индонезийский",
+        "is": "Исландский",
+        "it": "Итальянский",
+        "ja": "Японский",
+        "jv": "Яванский",
+        "ka": "Грузинский",
+        "kk": "Казахский",
+        "km": "Кхмерский",
+        "kn": "Каннада",
+        "ko": "Корейский",
+        "ky": "Киргизский",
+        "la": "Латынь",
+        "lb": "Люксембургский",
+        "lo": "Лаосский",
+        "lt": "Литовский",
+        "lv": "Латышский",
+        "mg": "Малагасийский",
+        "mhr": "Марийский",
+        "mi": "Маори",
+        "mk": "Македонский",
+        "ml": "Малаялам",
+        "mn": "Монгольский",
+        "mr": "Маратхи",
+        "mrj": "Горномарийский",
+        "ms": "Малайский",
+        "mt": "Мальтийский",
+        "my": "Бирманский",
+        "ne": "Непальский",
+        "nl": "Нидерландский",
+        "no": "Норвежский",
+        "pa": "Панджаби",
+        "pap": "Папьяменто",
+        "pl": "Польский",
+        "pt": "Португальский",
+        "ro": "Румынский",
+        "ru": "Русский",
+        "sah": "Якутский",
+        "si": "Сингальский",
+        "sk": "Словацкий",
+        "sl": "Словенский",
+        "sq": "Албанский",
+        "sr": "Сербский",
+        "su": "Сунданский",
+        "sv": "Шведский",
+        "sw": "Суахили",
+        "ta": "Тамильский",
+        "te": "Телугу",
+        "tg": "Таджикский",
+        "th": "Тайский",
+        "tl": "Тагальский",
+        "tr": "Турецкий",
+        "tt": "Татарский",
+        "udm": "Удмуртский",
+        "uk": "Украинский",
+        "ur": "Урду",
+        "uz": "Узбекский",
+        "vi": "Вьетнамский",
+        "xh": "Коса",
+        "yi": "Идиш",
+        "zh": "Китайский"}
 sessionStorage = {}
 
 
@@ -82,8 +193,9 @@ def handle_dialog(res, req):
                   5) Определить страну, в которой находится любой введенный город.
                   Для этого введите: в какой стране <город>
                   
-                  6) Перевести слово или фразу.
-                  Для этого введите: переведи фразу <фраза>'''
+                  6) Перевести слово или фразу с русского на любой язык.
+                  Для этого введите: переведи <фраза> на <язык>
+                  Например: переведи я люблю путешествие на испанский'''
 
         else:
             x_cord = sessionStorage[user_id]['cords_from'][0]
@@ -169,19 +281,12 @@ def handle_dialog(res, req):
                 lat = cords_to[1]
                 headers = {'X-Yandex-API-Key': '85fe82fd-5e67-4043-9879-5f7a7640916c'}
                 url = 'https://api.weather.yandex.ru/v1/forecast?lat={}&lon={}'.format(lat, lon)
-                weather = {'overcast-and-light-rain': 'облачно и легкий-дождь', 'overcast': 'пасмурная погода',
-                           'clear': 'ясная погода', 'partly-cloudy': 'малооблачно', 'cloudy': 'облачно с прояснениями',
-                           'partly-cloudy-and-light-rain': 'небольшой дождь', 'partly-cloudy-and-rain': 'дождь',
-                           'overcast-and-rain': 'сильный дождь', 'overcast-thunderstorms-with-rain': 'сильный дождь, гроза',
-                           'cloudy-and-rain': 'дождь', 'overcast-and-wet-snow': 'дождь со снегом',
-                           'partly-cloudy-and-light-snow': 'небольшой снег', 'partly-cloudy-and-snow': 'идти снег',
-                           'overcast-and-snow': 'снегопад', 'cloudy-and-snow': 'идти снег'}
                 response = requests.get(url, headers=headers).json()
                 tomorrow_forecast = response['forecasts'][1]
                 night_temp = tomorrow_forecast['parts']['night']['temp_avg']
                 day_temp = tomorrow_forecast['parts']['day']['temp_avg']
                 day_condition = tomorrow_forecast['parts']['day']['condition']
-                day_weather = weather[day_condition]
+                day_weather = WEATHER[day_condition]
                 res['response']['text'] = '''
                                           Прогноз погоды на завтра:
                                           Днем будет {}
@@ -197,13 +302,6 @@ def handle_dialog(res, req):
                 url = 'https://api.weather.yandex.ru/v1/forecast?lat={}&lon={}'.format(lat, lon)
                 days = {'0': 'понедельник', '1': 'вторник', '2': 'среда', '3': 'четверг',
                         '4': 'пятница', '5': 'суббота', '6': 'воскресенье', }
-                weather = {'overcast-and-light-rain': 'облачно и легкий-дождь', 'overcast': 'пасмурная погода',
-                           'clear': 'ясная погода', 'partly-cloudy': 'малооблачно', 'cloudy': 'облачно с прояснениями',
-                           'partly-cloudy-and-light-rain': 'небольшой дождь', 'partly-cloudy-and-rain': 'дождь',
-                           'overcast-and-rain': 'сильный дождь', 'overcast-thunderstorms-with-rain': 'сильный дождь, гроза',
-                           'cloudy-and-rain': 'дождь', 'overcast-and-wet-snow': 'дождь со снегом',
-                           'partly-cloudy-and-light-snow': 'небольшой снег', 'partly-cloudy-and-snow': 'идти снег',
-                           'overcast-and-snow': 'снегопад', 'cloudy-and-snow': 'идти снег'}
                 response = requests.get(url, headers=headers).json()
                 final_message = ''
                 counter = 1
@@ -214,7 +312,7 @@ def handle_dialog(res, req):
                     night_temp = i['parts']['night']['temp_avg']
                     day_temp = i['parts']['day']['temp_avg']
                     day_condition = i['parts']['day']['condition']
-                    day_weather = weather[day_condition]
+                    day_weather = WEATHER[day_condition]
                     final_message += '''
 {}) {} ({}):
 Днем будет {}
@@ -258,15 +356,26 @@ def handle_dialog(res, req):
                 '''
                 return
 
-            elif 'переведи фразу' in req['request']['original_utterance'].lower():
-                try:
-                    string = ''
-                    for i in tokens[2:]:
-                        string += i + ' '
-                    res['response']['text'] = 'Перевод: {}'.format(translate(string))
-                except:
-                    res['response']['text'] = 'Я не смогла перевести данную фразу. ' \
-                                              'Возможно ввод не соответствует требованиям.'
+            elif 'переведи' == req['request']['original_utterance'].lower().split()[0]:
+                if req['request']['original_utterance'].lower().split()[-2] == 'на':
+                    try:
+                        string = ' '.join(tokens[1:-2])
+                        lang_to = 'en'
+                        language = req['request']['original_utterance'].lower().split()[-1]
+                        for code, lang in LANGUAGES.items():
+                            if lang == language:
+                                lang_to = code
+                        res['response']['text'] = 'Перевод на {}: {}'.format(LANGUAGES[lang_to], translate(string, lang_to))
+                    except:
+                        res['response']['text'] = 'Я не смогла перевести данную фразу. ' \
+                                                  'Возможно ввод не соответствует требованиям.'
+                else:
+                    try:
+                        string = ' '.join(tokens[1:])
+                        res['response']['text'] = 'Перевод: {}'.format(translate(string))
+                    except:
+                        res['response']['text'] = 'Я не смогла перевести данную фразу. ' \
+                                                  'Возможно ввод не соответствует требованиям.'
 
             else:
                 res['response']['text'] = '''Кроме этих команд я ничего не умею. Пока, что.                             
@@ -362,8 +471,8 @@ def get_country(city):
     return json['response']['GeoObjectCollection']['featureMember'][0]['GeoObject']['metaDataProperty']['GeocoderMetaData']['AddressDetails']['Country']['CountryName']
 
 
-def translate(text):
-    params = {'lang': 'en',
+def translate(text, lang='en'):
+    params = {'lang': lang,
               'key': 'trnsl.1.1.20200430T160157Z.57feabe2d5c38c3a.aabbb8850063014bb3e400a8fd5b429e8728eecb',
               'text': text}
     res = requests.post(url='https://translate.yandex.net/api/v1.5/tr.json/translate', params=params).json()
