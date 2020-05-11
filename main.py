@@ -363,7 +363,7 @@ def handle_dialog(res, req):
                         lang_to = 'en'
                         language = req['request']['original_utterance'].lower().split()[-1]
                         for code, lang in LANGUAGES.items():
-                            if lang == language:
+                            if lang.lower() == language:
                                 lang_to = code
                         res['response']['text'] = 'Перевод на {}: {}'.format(LANGUAGES[lang_to], translate(string, lang_to))
                     except:
