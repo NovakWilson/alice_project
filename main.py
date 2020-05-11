@@ -193,11 +193,12 @@ def handle_dialog(res, req):
                   5) Определить страну, в которой находится любой введенный город.
                   Для этого введите: в какой стране <город>
                   
-                  6) Перевести слово или фразу с русского на любой язык.
+                  6) Перевести слово или фразу с русского на любой язык (по умолчанию на английский).
                   Для этого введите: переведи <фраза> на <язык>
                   Например: переведи я люблю путешествие на испанский'''
 
         else:
+            original_phrase_list = req['request']['original_utterance'].lower().split()
             x_cord = sessionStorage[user_id]['cords_from'][0]
             y_cord = sessionStorage[user_id]['cords_from'][1]
             address_ll = '{},{}'.format(x_cord, y_cord)
@@ -354,18 +355,19 @@ def handle_dialog(res, req):
                 '''
                 return
 
-            elif 'переведи' == req['request']['original_utterance'].lower().split()[0]:
+            elif 'переведи' == original_phrase_list[0]:
                 try:
-                    if req['request']['original_utterance'].lower().split()[-2] == 'на':
-                        string = ' '.join(tokens[1:-2])
+                    if original_phrase_list[-2] == 'на':
+
+                        string = ' '.join(original_phrase_list[1:-2])
                         lang_to = 'en'
-                        language = req['request']['original_utterance'].lower().split()[-1]
+                        language = original_phrase_list[-1]
                         for code, lang in LANGUAGES.items():
                             if lang.lower() == language:
                                 lang_to = code
                         res['response']['text'] = 'Перевод на {}: {}'.format(LANGUAGES[lang_to], translate(string, lang_to))
                     else:
-                        string = ' '.join(tokens[1:])
+                        string = ' '.join(original_phrase_list[1:])
                         res['response']['text'] = 'Перевод на Английский: {}'.format(translate(string))
                 except:
                     res['response']['text'] = 'Я не смогла перевести данную фразу. ' \
