@@ -357,8 +357,8 @@ def handle_dialog(res, req):
                 return
 
             elif 'переведи' == req['request']['original_utterance'].lower().split()[0]:
-                if req['request']['original_utterance'].lower().split()[-2] == 'на':
-                    try:
+                try:
+                    if req['request']['original_utterance'].lower().split()[-2] == 'на':
                         string = ' '.join(tokens[1:-2])
                         lang_to = 'en'
                         language = req['request']['original_utterance'].lower().split()[-1]
@@ -366,9 +366,9 @@ def handle_dialog(res, req):
                             if lang.lower() == language:
                                 lang_to = code
                         res['response']['text'] = 'Перевод на {}: {}'.format(LANGUAGES[lang_to], translate(string, lang_to))
-                    except:
-                        res['response']['text'] = 'Я не смогла перевести данную фразу. ' \
-                                                  'Возможно ввод не соответствует требованиям.'
+                except:
+                    res['response']['text'] = 'Я не смогла перевести данную фразу. ' \
+                                              'Возможно ввод не соответствует требованиям.'
                 else:
                     try:
                         string = ' '.join(tokens[1:])
