@@ -8,6 +8,14 @@ import datetime
 
 app = Flask(__name__)
 
+'''
+git
+https://github.com/NovakWilson/alice_project
+
+Webhook url
+https://alproject.herokuapp.com/post
+'''
+
 #  logging.basicConfig(level=logging.INFO)
 search_api_server = "https://search-maps.yandex.ru/v1/"
 api_key = "85a99676-6991-4b77-a07c-fe0cb368f96f"
