@@ -356,7 +356,7 @@ def handle_dialog(res, req):
                 res['response']['buttons'] = sessionStorage[user_id]['buttons']
                 return
 
-            elif req['request']['original_utterance'].lower() == 'Что надеть в дорогу?':
+            elif req['request']['original_utterance'].lower() == 'что надеть в дорогу?':
                 cords_to = sessionStorage[user_id]['cords_from']
                 lon = cords_to[0]
                 lat = cords_to[1]
