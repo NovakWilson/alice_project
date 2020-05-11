@@ -336,11 +336,9 @@ def handle_dialog(res, req):
                 cords_to = get_coordinates(sessionStorage[user_id]['org']["address"])
                 #  map_request = "http://static-maps.yandex.ru/1.x/?ll={}&spn=0.1,0.1&l=map".format(cords_to)
                 json = {"url": "http://static-maps.yandex.ru/1.x/?ll={}&z=14&l=map".format(','.join([str(i) for i in cords_to]))}
-                print(json)
                 headers = {'Authorization': 'OAuth AgAAAAAqf_iLAAT7o_EKmn5n1kmmvwSwyWpHM_I'}
                 url = 'https://dialogs.yandex.net/api/v1/skills/f014ed35-b7ff-4b51-969e-690abc790540/images'
                 response = requests.post(url, json=json, headers=headers).json()
-                print(response)
                 image_id = response['image']['id']
                 res['response']['card'] = {}
                 res['response']['card']['type'] = 'BigImage'
@@ -366,16 +364,12 @@ def handle_dialog(res, req):
                             if lang.lower() == language:
                                 lang_to = code
                         res['response']['text'] = 'Перевод на {}: {}'.format(LANGUAGES[lang_to], translate(string, lang_to))
+                    else:
+                        string = ' '.join(tokens[1:])
+                        res['response']['text'] = 'Перевод на Английский: {}'.format(translate(string))
                 except:
                     res['response']['text'] = 'Я не смогла перевести данную фразу. ' \
                                               'Возможно ввод не соответствует требованиям.'
-                else:
-                    try:
-                        string = ' '.join(tokens[1:])
-                        res['response']['text'] = 'Перевод: {}'.format(translate(string))
-                    except:
-                        res['response']['text'] = 'Я не смогла перевести данную фразу. ' \
-                                                  'Возможно ввод не соответствует требованиям.'
 
             else:
                 res['response']['text'] = '''Кроме этих команд я ничего не умею. Пока, что.                             
