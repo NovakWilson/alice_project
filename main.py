@@ -28,6 +28,21 @@ WEATHER = {'overcast-and-light-rain': 'облачно и легкий-дождь
            'partly-cloudy-and-snow': 'идти снег',
            'overcast-and-snow': 'снегопад',
            'cloudy-and-snow': 'идти снег'}
+CLOTHES = {'overcast-and-light-rain': 'Лучше надеть ветровку и взять зонтик',
+           'overcast': 'Советуем одеться потеплее. Приготовьте зонтик, возможно будет дождь',
+           'clear': 'Можно надеть футболку и шорты',
+           'partly-cloudy': 'Можно надеть футболку и шорты',
+           'cloudy': 'Можно надеть футболку и джинсы',
+           'partly-cloudy-and-light-rain': 'Возьмите с собой дождевик или зонт.',
+           'partly-cloudy-and-rain': 'Обязательно возьмите зонт или дождевик',
+           'overcast-and-rain': 'Обязательно возьмите зонт или дождевик',
+           'overcast-thunderstorms-with-rain': 'Обязательно возьмите зонт или дождевик. Лучше вызовите Яндекс Такси.',
+           'cloudy-and-rain': 'Обязательно возьмите зонт или дождевик',
+           'overcast-and-wet-snow': 'Обязательно возьмите зонт и оденьтесь потеплее',
+           'partly-cloudy-and-light-snow': 'Свитер у пуховик вам не помешают.',
+           'partly-cloudy-and-snow': 'Свитер у пуховик вам не помешают.',
+           'overcast-and-snow': 'Свитер у пуховик вам не помешают.',
+           'cloudy-and-snow': 'Свитер у пуховик вам не помешают.'}
 LANGUAGES = {
         "af": "Африкаанс",
         "am": "Амхарский",
@@ -230,6 +245,10 @@ def handle_dialog(res, req):
                         {
                             'title': 'Показать на карте',
                             'hide': True
+                        },
+                        {
+                            'title': 'Что надеть в дорогу?',
+                            'hide': True
                         }
                     ]
                     org_address = organization["properties"]["CompanyMetaData"]["address"]
@@ -248,6 +267,10 @@ def handle_dialog(res, req):
                         },
                         {
                             'title': 'Показать на карте',
+                            'hide': True
+                        },
+                        {
+                            'title': 'Что надеть в дорогу?',
                             'hide': True
                         }
                     ]
@@ -330,6 +353,21 @@ def handle_dialog(res, req):
                     work_time = 'Не указано'
                 res['response']['text'] = 'Время работы: {}'.format(work_time)
                 sessionStorage[user_id]['buttons'] = [i for i in sessionStorage[user_id]['buttons'] if not i['title'] == 'Показать время работы']
+                res['response']['buttons'] = sessionStorage[user_id]['buttons']
+                return
+
+            elif req['request']['original_utterance'].lower() == 'Что надеть в дорогу?':
+                cords_to = sessionStorage[user_id]['cords_from']
+                lon = cords_to[0]
+                lat = cords_to[1]
+                headers = {'X-Yandex-API-Key': '85fe82fd-5e67-4043-9879-5f7a7640916c'}
+                url = 'https://api.weather.yandex.ru/v1/forecast?lat={}&lon={}'.format(lat, lon)
+                response = requests.get(url, headers=headers).json()
+                today_forecast = response['forecasts'][0]
+                day_condition = today_forecast['parts']['day']['condition']
+                day_clothes = CLOTHES[day_condition]
+                res['response']['text'] = day_clothes
+                sessionStorage[user_id]['buttons'] = [i for i in sessionStorage[user_id]['buttons'] if not i['title'] == 'Что надеть в дорогу?']
                 res['response']['buttons'] = sessionStorage[user_id]['buttons']
                 return
 
